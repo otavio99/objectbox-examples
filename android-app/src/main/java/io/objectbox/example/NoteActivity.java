@@ -1,62 +1,43 @@
 package io.objectbox.example;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.EditText;
-import android.widget.ListView;
 
 import java.text.DateFormat;
 import java.util.Date;
-import java.util.List;
 
 import io.objectbox.Box;
-import io.objectbox.query.Query;
 
 public class NoteActivity extends Activity {
 
     private EditText editText;
     private View addNoteButton;
+    private View listNoteButton;
 
     private Box<Note> notesBox;
-    private Query<Note> notesQuery;
-    private NotesAdapter notesAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
+        setContentView(R.layout.add_activity);
 
         setUpViews();
 
         notesBox = ObjectBox.get().boxFor(Note.class);
-
-        // query all notes, sorted a-z by their text (https://docs.objectbox.io/queries)
-        notesQuery = notesBox.query().order(Note_.text).build();
-        updateNotes();
-    }
-
-    /** Manual trigger to re-query and update the UI. For a reactive alternative check {@link ReactiveNoteActivity}. */
-    private void updateNotes() {
-        List<Note> notes = notesQuery.find();
-        notesAdapter.setNotes(notes);
     }
 
     protected void setUpViews() {
-        ListView listView = findViewById(R.id.listViewNotes);
-        listView.setOnItemClickListener(noteClickListener);
-
-        notesAdapter = new NotesAdapter();
-        listView.setAdapter(notesAdapter);
-
         addNoteButton = findViewById(R.id.buttonAdd);
         addNoteButton.setEnabled(false);
+
+        listNoteButton = findViewById(R.id.buttonList);
 
         editText = findViewById(R.id.editTextNote);
         editText.setOnEditorActionListener((v, actionId, event) -> {
@@ -88,6 +69,9 @@ public class NoteActivity extends Activity {
     public void onAddButtonClick(View view) {
         addNote();
     }
+    public void onListButtonClick(View view) {
+        gotToListNoteActivity();
+    }
 
     private void addNote() {
         String noteText = editText.getText().toString();
@@ -102,18 +86,10 @@ public class NoteActivity extends Activity {
         note.setDate(new Date());
         notesBox.put(note);
         Log.d(App.TAG, "Inserted new note, ID: " + note.getId());
-
-        updateNotes();
     }
-
-    OnItemClickListener noteClickListener = new OnItemClickListener() {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            Note note = notesAdapter.getItem(position);
-            notesBox.remove(note);
-            Log.d(App.TAG, "Deleted note, ID: " + note.getId());
-            updateNotes();
-        }
-    };
-
+    private void gotToListNoteActivity(){
+        Intent intent = new Intent();
+        intent.setClass(this, ListNoteActivity.class);
+        startActivity(intent);
+    }
 }

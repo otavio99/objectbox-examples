@@ -24,11 +24,13 @@ android {
 }
 
 dependencies {
+    implementation 'com.google.android.material:material:1.0.0'
+
     // ObjectBox with Data Browser for debug builds, without for release builds.
     // https://docs.objectbox.io/data-browser
     debugImplementation "io.objectbox:objectbox-android-objectbrowser:$objectboxVersion"
     releaseImplementation "io.objectbox:objectbox-android:$objectboxVersion"
-
+    implementation "androidx.constraintlayout:constraintlayout:2.0.4"
     // Optional: if you distribute your app as App Bundle, see the App class for details.
     implementation 'com.google.android.play:core:1.8.0'
 
